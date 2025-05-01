@@ -54,3 +54,114 @@ def label_sanitizer(method):
         return df
     return method_wrapper
 
+def group_stock(mapping):
+    """
+    Create a new dataframe with many assets and a new column
+    indicating the asset that that row's data belongs to.
+
+    Parameters
+    ----------
+    mapping : Dictionary
+        A key-value mapping of the form
+        {asset_name: asset_df}
+
+    Returns
+    -------
+    A new pandas DataFrame.
+
+    """
+    group_df = pd.DataFrame()
+    
+    for stock, stock_data in mapping.items():
+        df = stock_data.copy(deep=True)
+        df['name'] = stock
+        group_df = group_df.concat(df, sort=True, ignore_index=True)
+
+    group_df.index = pd.to_datetime(group_df.index)
+    
+    return group_df
+
+def validate_df(columns, instance_method = True):
+    """
+    Decorator that raises a ValueError if input isn't a pandas
+    DataFrame or doesn't contain the proper columns. Note the
+    DataFrame must be the first positional argument passed to this method.
+    
+    """
+    def method_wrapper(method):
+        @wraps(method)
+        def validate_wrapper(self, *args, **kwargs):
+            # functions and static methods don't pass self
+            # so self is the first postional argument in that case
+            df = (self, *args) [0 if not instance_method else 1]
+            
+            if not isinstance(df, pd.DataFrame):
+                raise ValueError('Must pass in a pandas DataFrame')
+                
+            if columns.difference(df.columns):
+                raise ValueError(
+                    'DataFrame must contain the following columns:'
+                    f'{columns}'
+                    )
+            return method(self, *args, **kwargs)
+        return validate_wrapper
+    return method_wrapper
+
+
+@validate_df(columns={'name'}, instance_method=False)
+def describe_group(data):
+    """
+    Run `describe()` on the asset group created with `group_stocks()`.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The group data resulting from `group_stocks()`
+
+    Returns
+    -------
+    The transpose of the grouped description statistics.
+
+    """
+    return data.groupby('name').describe().T
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
