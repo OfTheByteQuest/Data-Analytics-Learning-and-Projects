@@ -1,0 +1,8 @@
+setup.py
+stock_analysis/__init__.py
+stock_analysis/stock_reader.py
+stock_analysis/utils.py
+stock_analysis.egg-info/PKG-INFO
+stock_analysis.egg-info/SOURCES.txt
+stock_analysis.egg-info/dependency_links.txt
+stock_analysis.egg-info/top_level.txt
